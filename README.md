@@ -19,7 +19,7 @@ On a Debian/Ubuntu machine, the following steps have to be carried out:
   virtualenv --no-site-packages sandbox
   source sandbox/bin/activate
   easy_install sqlalchemy==0.7.10 buildbot buildbot-slave
-  buildslave create-slave slave firmware.berlin.freifunk.net:9989 HOSTNAME PASSWORD
+  buildslave create-slave --umask=022 slave firmware.berlin.freifunk.net:9989 HOSTNAME PASSWORD
   ```
 3. Fill `slave/info/admin` with your name and mail (in case we need to contact you about a changed configuration)
 4. ```buildslave start slave```
