@@ -1,6 +1,6 @@
 # Buildbot for Freifunk Firmware
 
-The [Freifunk Firmware (Berlin)](https://github.com/freifunk/firmware-berlin) is automatically built by the [buildbot](http://firmware.berlin.freifunk.net:8010/).
+The [Freifunk Firmware (Berlin)](https://github.com/freifunk-berlin/firmware) is automatically built by the [buildbot](http://buildbot.berlin.freifunk.net).
 
 This repo contains the buildbot config for the master and slaves.
 
