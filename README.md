@@ -21,6 +21,11 @@ On a Debian/Ubuntu machine, the following steps have to be carried out:
   easy_install sqlalchemy==0.7.10 buildbot buildbot-slave
   buildslave create-slave --umask=022 slave firmware.berlin.freifunk.net:9989 HOSTNAME PASSWORD
   ```
+
+On Ubuntu you can also use the package provided by the package manager:
+
+http://zverovich.net/2012/06/16/installing-buildbot-in-ubuntu.html
+
 3. Fill `slave/info/admin` with your name and mail (in case we need to contact you about a changed configuration)
 4. ```buildslave start slave```
 
