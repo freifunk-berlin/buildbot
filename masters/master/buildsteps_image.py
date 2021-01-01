@@ -40,6 +40,7 @@ def cmd_make_command(props):
 
 
 cmd_make = ShellCommand(
+    name="build images",
     command=cmd_make_command,
     workdir="build/falter-builter",
     haltOnFailure=True
@@ -48,6 +49,7 @@ cmd_make = ShellCommand(
 upload_directory = Interpolate("/usr/local/src/www/htdocs/buildbot/unstable/"+ date.today().strftime("%Y-%m-%d") +"/%(prop:branch)s/")
 
 cmd_mastermkdir = MasterShellCommand(
+    name="create upload-dir",
     command=[
         "mkdir",
         "-p",
@@ -65,6 +67,7 @@ cmd_uploadPackages = DirectoryUpload(
     )
 
 cmd_masterchmod = MasterShellCommand(
+    name="make dir readable",
     command=[
         "chmod",
         "-R",
@@ -72,12 +75,34 @@ cmd_masterchmod = MasterShellCommand(
         upload_directory
     ])
 
+cmd_masterchown = MasterShellCommand(
+    name="make dir accessible",
+    command=[
+        "chowm",
+        "-R",
+        "www-data:buildbot",
+        upload_directory
+    ]
+)
+
 cmd_cleanup = RemoveDirectory(
     dir="build/falter-builter",
     alwaysRun=True
     )
 
+cmd_create_release_dir = MasterShellCommand(
+    name="create stable-release dir",
+    command=[
+        "mkdir",
+        "-m755",
+        "-p",
+        Interpolate("/usr/local/src/www/htdocs/buildbot/stable/%(prop:branch)s/")
+        ],
+    doStepIf=is_release_step
+    )
+
 cmd_rsync_release = MasterShellCommand(
+    name="sync stable-release",
     command=[
         "rsync",
         "-av",
@@ -88,15 +113,6 @@ cmd_rsync_release = MasterShellCommand(
     doStepIf=is_release_step
     )
 
-cmd_create_release_dir = MasterShellCommand(
-    command=[
-        "mkdir",
-        "-m755",
-        "-p",
-        Interpolate("/usr/local/src/www/htdocs/buildbot/stable/%(prop:branch)s/")
-        ],
-    doStepIf=is_release_step
-    )
 
 image_factory = BuildFactory([
     cmd_checkoutSource,
@@ -104,6 +120,7 @@ image_factory = BuildFactory([
     cmd_mastermkdir,
     cmd_uploadPackages,
     cmd_masterchmod,
+    cmd_masterchown,
     cmd_create_release_dir,
     cmd_rsync_release,
     cmd_cleanup
