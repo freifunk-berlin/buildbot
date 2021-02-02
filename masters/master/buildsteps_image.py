@@ -78,7 +78,7 @@ cmd_masterchmod = MasterShellCommand(
 cmd_masterchown = MasterShellCommand(
     name="make dir accessible",
     command=[
-        "chowm",
+        "chown",
         "-R",
         "www-data:buildbot",
         upload_directory
