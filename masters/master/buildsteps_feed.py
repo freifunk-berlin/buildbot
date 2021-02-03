@@ -13,17 +13,27 @@ feed_checkoutSource = Git(
     repourl='git://github.com/Freifunk-Spalter/repo_builder',
     branch="master",   # this can get changed by html.WebStatus.change_hook()
                        # by notification from GitHub of a commit
-    workdir="build/falter-repo-builder",
+    workdir="build",
     mode='full'
     )
+
+upload_dir = Interpolate("/usr/local/src/www/htdocs/buildbot/feed/new/%(prop:buildername)s/")
+feed_master_empty_dir = MasterShellCommand(
+    name="clear upload dir",
+    command=[
+        "rm",
+        "-rf",
+        upload_dir
+        ]
+)
 
 feed_create_tmpdir = ShellCommand(
     name="create tmp dir",
     command=[
     "mkdir",
     "-p",
-    "tmp"
-    ])
+    "tmp"]
+    )
 
 @renderer
 def feed_make_command(props):
@@ -39,19 +49,9 @@ def feed_make_command(props):
 feed_make = ShellCommand(
     name="build feed",
     command=feed_make_command,
-    workdir="build/falter-repo-builder",
     haltOnFailure=True
     )
 
-upload_dir = Interpolate("/usr/local/src/www/htdocs/buildbot/feed/new/%(prop:buildername)s/")
-feed_master_empty_dir = MasterShellCommand(
-    name="clear upload dir",
-    command=[
-        "rm",
-        "-rf",
-        upload_dir
-        ]
-)
 
 feed_mastermkdir = MasterShellCommand(
     name="create upload dir",
@@ -87,20 +87,26 @@ feed_sign_packages = MasterShellCommand(
 )
 
 feed_cleanup = RemoveDirectory(
-    dir="build/falter-repo-builder",
+    dir="build",
     alwaysRun=True
     )
 
+feed_cleanup_tmp = RemoveDirectory(
+    dir=Interpolate('%(prop:builddir)s/tmp'),
+    alwaysRun=True
+)
+
 feed_factory = BuildFactory([
     feed_checkoutSource,
+    feed_master_empty_dir,
     feed_create_tmpdir,
     feed_make,
-    feed_master_empty_dir,
     feed_mastermkdir,
     feed_uploadPackages,
     feed_masterchmod,
     feed_sign_packages,
-    feed_cleanup
+    feed_cleanup,
+    feed_cleanup_tmp
     ])
 
 def create_feed_builder(builder_name):
