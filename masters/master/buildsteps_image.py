@@ -33,9 +33,9 @@ feed_conf_interpolate = Interpolate(
 @renderer
 def cmd_make_command(props):
     command = ['nice', './build_falter']
-    command.extend(["all"])
-    command.extend(["19.07"])
-    command.extend([props.getProperty('buildername')])
+    command.extend(["-p", "all"])
+    command.extend(["-v", "19.07"])
+    command.extend(["-t", props.getProperty('buildername')])
     return command
 
 
