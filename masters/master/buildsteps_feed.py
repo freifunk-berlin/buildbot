@@ -14,6 +14,7 @@ feed_checkoutSource = Git(
     branch="master",   # this can get changed by html.WebStatus.change_hook()
                        # by notification from GitHub of a commit
     workdir="build",
+    alwaysUseLatest=True,
     mode='full'
     )
 
