@@ -18,15 +18,6 @@ feed_checkoutSource = Git(
     mode='full'
     )
 
-upload_dir = Interpolate("/usr/local/src/www/htdocs/buildbot/feed/new/%(prop:buildername)s/")
-feed_master_empty_dir = MasterShellCommand(
-    name="clear upload dir",
-    command=[
-        "rm",
-        "-rf",
-        upload_dir
-        ]
-)
 
 feed_create_tmpdir = ShellCommand(
     name="create tmp dir",
@@ -54,6 +45,7 @@ feed_make = ShellCommand(
     )
 
 
+upload_dir = Interpolate("/usr/local/src/www/htdocs/buildbot/feed/new/%(prop:buildername)s-%(prop:revision)s/")
 feed_mastermkdir = MasterShellCommand(
     name="create upload dir",
     command=[
@@ -99,7 +91,6 @@ feed_cleanup_tmp = RemoveDirectory(
 
 feed_factory = BuildFactory([
     feed_checkoutSource,
-    feed_master_empty_dir,
     feed_create_tmpdir,
     feed_make,
     feed_mastermkdir,
