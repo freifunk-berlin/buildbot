@@ -3,6 +3,7 @@ import re
 
 from buildbot.process.factory import BuildFactory
 from buildbot.config import BuilderConfig
+from buildbot.plugins import steps
 from buildbot.steps.source.git import Git
 from buildbot.steps.shell import ShellCommand
 from buildbot.steps.transfer import DirectoryUpload
@@ -10,6 +11,7 @@ from buildbot.steps.master import MasterShellCommand
 from buildbot.process.properties import Interpolate, renderer
 from buildbot.steps.worker import RemoveDirectory
 from datetime import date
+
 
 
 def is_release_step(step):
@@ -30,11 +32,16 @@ feed_conf_interpolate = Interpolate(
     )
 
 
+set_property_falter_version = steps.SetProperty(
+    property="falterVersion",
+    value="1.1.1-snapshot"
+)
+
 @renderer
 def cmd_make_command(props):
     command = ['nice', './build_falter']
     command.extend(["-p", "all"])
-    command.extend(["-v", "19.07"])
+    command.extend(["-v", props.getProperty('falterVersion')])
     command.extend(["-t", props.getProperty('buildername')])
     return command
 
@@ -46,7 +53,9 @@ cmd_make = ShellCommand(
     haltOnFailure=True
     )
 
-upload_directory = Interpolate("/usr/local/src/www/htdocs/buildbot/unstable/"+ date.today().strftime("%Y-%m-%d") +"/%(prop:branch)s/")
+#upload_directory = Interpolate("/usr/local/src/www/htdocs/buildbot/unstable/"+ date.today().strftime("%Y-%m-%d") +"/%(prop:branch)s/")
+upload_directory = Interpolate("/usr/local/src/www/htdocs/buildbot/unstable/%(prop:falterVersion)s/")
+upload_dir_target = Interpolate("/usr/local/src/www/htdocs/buildbot/unstable/%(prop:falterVersion)s/*/%(prop:buildername)s/")
 
 cmd_mastermkdir = MasterShellCommand(
     name="create upload-dir",
@@ -55,6 +64,14 @@ cmd_mastermkdir = MasterShellCommand(
         "-p",
         "--mode=a+rx",
         upload_directory
+    ])
+
+cmd_master_clear_dir = MasterShellCommand(
+    name="clear upload-dir",
+    command=[
+        "rm",
+        "-rf",
+        upload_dir_target
     ])
 
 image_worker_src_directory = Interpolate(
@@ -116,8 +133,10 @@ cmd_rsync_release = MasterShellCommand(
 
 image_factory = BuildFactory([
     cmd_checkoutSource,
-    cmd_make,
+    set_property_falter_version,
     cmd_mastermkdir,
+    cmd_master_clear_dir,
+    cmd_make,
     cmd_uploadPackages,
     cmd_masterchmod,
     cmd_masterchown,
