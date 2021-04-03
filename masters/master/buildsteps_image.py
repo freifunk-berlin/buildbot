@@ -12,8 +12,11 @@ from buildbot.process.properties import Interpolate, renderer
 from buildbot.steps.worker import RemoveDirectory
 from datetime import date
 
-# If we trigger the build via web UI, this is the version that gets build
+
+# If we trigger the build via web UI, this is the version that gets built
 defaultFalterVersion = "1.1.0"
+
+
 
 def is_release_step(step):
     branch = step.getProperty("branch") or 'was_not_set'
