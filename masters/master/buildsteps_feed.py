@@ -5,10 +5,9 @@ from buildbot.steps.source.git import Git
 from buildbot.steps.shell import ShellCommand
 from buildbot.steps.transfer import DirectoryUpload
 from buildbot.steps.master import MasterShellCommand
-from buildbot.process.properties import Interpolate, renderer
+from buildbot.process.properties import Interpolate, renderer, Property
 from buildbot.steps.worker import RemoveDirectory
 from datetime import date
-from requests import get
 import re
 
 
@@ -35,7 +34,7 @@ feed_create_tmpdir = ShellCommand(
 def feed_make_command(props):
     command = ['nice',
 	'./build_all_targets',
-	'19.07.5',
+	'19.07.7',
         Interpolate('src-git falter https://github.com/Freifunk-Spalter/packages.git;%(prop:buildername)s'),
         Interpolate('%(prop:builddir)s/tmp'),
         'build_parallel'
@@ -123,6 +122,14 @@ feed_cleanup_tmp = RemoveDirectory(
     alwaysRun=True
 )
 
+feed_trigger_image_generation = steps.Trigger(
+    name="trigger generation of new snapshot images",
+    schedulerNames=["trigger_snapshots"],
+    waitForFinish = False,
+    alwaysUseLatest = True,
+    set_properties={"falterVersion" : Property("falterVersion")}
+)
+
 feed_factory = BuildFactory([
     feed_checkoutSource,
     feed_create_tmpdir,
@@ -134,7 +141,8 @@ feed_factory = BuildFactory([
     feed_masterchmod,
     feed_sign_packages,
     feed_cleanup,
-    feed_cleanup_tmp
+    feed_cleanup_tmp,
+    feed_trigger_image_generation
     ])
 
 def create_feed_builder(builder_name):
