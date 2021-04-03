@@ -12,7 +12,8 @@ from buildbot.process.properties import Interpolate, renderer
 from buildbot.steps.worker import RemoveDirectory
 from datetime import date
 
-
+# If we trigger the build via web UI, this is the version that gets build
+defaultFalterVersion = "1.1.0"
 
 def is_release_step(step):
     branch = step.getProperty("branch") or 'was_not_set'
@@ -32,16 +33,16 @@ feed_conf_interpolate = Interpolate(
     )
 
 
-set_property_falter_version = steps.SetProperty(
-    property="falterVersion",
-    value="1.1.1-snapshot"
-)
+#set_property_falter_version = steps.SetProperty(
+#    property="defaultfalterVersion",
+#    value="1.1.0"
+#)
 
 @renderer
 def cmd_make_command(props):
     command = ['nice', './build_falter']
     command.extend(["-p", "all"])
-    command.extend(["-v", props.getProperty('falterVersion')])
+    command.extend(["-v", props.getProperty('falterVersion', default=defaultFalterVersion)])
     command.extend(["-t", props.getProperty('buildername')])
     return command
 
@@ -54,8 +55,8 @@ cmd_make = ShellCommand(
     )
 
 #upload_directory = Interpolate("/usr/local/src/www/htdocs/buildbot/unstable/"+ date.today().strftime("%Y-%m-%d") +"/%(prop:branch)s/")
-upload_directory = Interpolate("/usr/local/src/www/htdocs/buildbot/unstable/%(prop:falterVersion)s/")
-upload_dir_target = Interpolate("/usr/local/src/www/htdocs/buildbot/unstable/%(prop:falterVersion)s/*/%(prop:buildername)s/")
+upload_directory = Interpolate("/usr/local/src/www/htdocs/buildbot/unstable/%(prop:falterVersion:-1.1.0)s/")
+upload_dir_target = Interpolate("/usr/local/src/www/htdocs/buildbot/unstable/%(prop:falterVersion:-1.1.0)s/*/%(prop:buildername)s/")
 
 cmd_mastermkdir = MasterShellCommand(
     name="create upload-dir",
@@ -69,8 +70,7 @@ cmd_mastermkdir = MasterShellCommand(
 cmd_master_clear_dir = MasterShellCommand(
     name="clear upload-dir",
     command=[
-        "rm",
-        "-rf",
+        "/usr/local/src/clear_target.sh",
         upload_dir_target
     ])
 
@@ -133,7 +133,7 @@ cmd_rsync_release = MasterShellCommand(
 
 image_factory = BuildFactory([
     cmd_checkoutSource,
-    set_property_falter_version,
+    #set_property_falter_version,
     cmd_mastermkdir,
     cmd_master_clear_dir,
     cmd_make,
