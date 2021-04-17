@@ -54,7 +54,12 @@ def cmd_make_command(props):
     command = ['nice', './build_falter']
     command.extend(["-p", "all"])
     command.extend(["-v", props.getProperty('falterVersion', default=defaultFalterVersion)])
-    command.extend(["-t", props.getProperty('buildername')])
+    # slice build parameter from builder name
+    tmp_target = props.getProperty('buildername')
+    target = tmp_target.split('/')[0]
+    subtarget = tmp_target.split('/')[1]
+    command.extend(["-t", target])
+    command.extend(["-s", subtarget])
     return command
 
 
@@ -65,7 +70,6 @@ cmd_make = ShellCommand(
     haltOnFailure=True
     )
 
-#upload_directory = Interpolate("/usr/local/src/www/htdocs/buildbot/unstable/"+ date.today().strftime("%Y-%m-%d") +"/%(prop:branch)s/")
 upload_directory = Interpolate("/usr/local/src/www/htdocs/buildbot/unstable/%(prop:falterVersion:-1.1.0)s/")
 upload_dir_target = Interpolate("/usr/local/src/www/htdocs/buildbot/unstable/%(prop:falterVersion:-1.1.0)s/*/%(prop:buildername)s/")
 
