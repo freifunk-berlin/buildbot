@@ -14,7 +14,7 @@ from datetime import date
 
 
 # If we trigger the build via web UI, this is the version that gets built
-defaultFalterVersion = "1.1.0"
+defaultFalterVersion = "snapshot"
 
 
 
@@ -35,11 +35,19 @@ feed_conf_interpolate = Interpolate(
     "'s/\(packages_berlin\.git\^\)\([a-f0-9]\{40,40\}\)/\1%(prop:revision)s/'"
     )
 
+# this build wasn't triggered by feed-compilation
+def no_autobuild(step):
+    ver = step.getProperty("falterVersion") or None
+    if ver:
+        return False
+    else:
+        return True
 
-#set_property_falter_version = steps.SetProperty(
-#    property="defaultfalterVersion",
-#    value="1.1.0"
-#)
+set_property_falter_version = steps.SetProperty(
+    property="falterVersion",
+    value=defaultFalterVersion,
+    doStepIf=no_autobuild
+)
 
 @renderer
 def cmd_make_command(props):
@@ -136,7 +144,7 @@ cmd_rsync_release = MasterShellCommand(
 
 image_factory = BuildFactory([
     cmd_checkoutSource,
-    #set_property_falter_version,
+    set_property_falter_version,
     cmd_mastermkdir,
     cmd_master_clear_dir,
     cmd_make,
