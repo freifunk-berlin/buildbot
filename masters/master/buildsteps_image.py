@@ -19,7 +19,7 @@ defaultFalterVersion = "snapshot"
 
 
 def is_release_step(step):
-    branch = step.getProperty("branch") or 'was_not_set'
+    branch = step.getProperty("falterVersion") or 'was_not_set'
     return re.match(".*\d+\.\d+\.\d+$", branch)
 
 
@@ -70,8 +70,8 @@ cmd_make = ShellCommand(
     haltOnFailure=True
     )
 
-upload_directory = Interpolate("/usr/local/src/www/htdocs/buildbot/unstable/%(prop:falterVersion:-1.1.0)s/")
-upload_dir_target = Interpolate("/usr/local/src/www/htdocs/buildbot/unstable/%(prop:falterVersion:-1.1.0)s/*/%(prop:buildername)s/")
+upload_directory = Interpolate("/usr/local/src/www/htdocs/buildbot/unstable/%(prop:falterVersion:-unknownVersion)s/")
+upload_dir_target = Interpolate("/usr/local/src/www/htdocs/buildbot/unstable/%(prop:falterVersion:-unknownVersion)s/*/%(prop:buildername)s/")
 
 cmd_mastermkdir = MasterShellCommand(
     name="create upload-dir",
@@ -128,7 +128,7 @@ cmd_create_release_dir = MasterShellCommand(
         "mkdir",
         "-m755",
         "-p",
-        Interpolate("/usr/local/src/www/htdocs/buildbot/stable/%(prop:branch)s/")
+        Interpolate("/usr/local/src/www/htdocs/buildbot/stable/%(prop:falterVersion)s/")
         ],
     doStepIf=is_release_step
     )
@@ -140,7 +140,7 @@ cmd_rsync_release = MasterShellCommand(
         "-av",
         "--delete",
         upload_directory,
-        Interpolate("/usr/local/src/www/htdocs/buildbot/stable/%(prop:branch)s/%(prop:buildername)s")
+        Interpolate("/usr/local/src/www/htdocs/buildbot/stable/%(prop:falterVersion)s/%(prop:buildername)s")
         ],
     doStepIf=is_release_step
     )

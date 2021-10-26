@@ -11,6 +11,15 @@ from datetime import date
 import re
 
 
+def is_release(step):
+    branch = step.getProperty("falterVersion") or 'was_not_set'
+    return re.match(".*\d+\.\d+\.\d+$", branch)
+
+def is_no_release(step):
+    branch = step.getProperty("falterVersion") or 'was_not_set'
+    return not re.match(".*\d+\.\d+\.\d+$", branch)
+
+
 feed_checkoutSource = Git(
     repourl='git://github.com/Freifunk-Spalter/repo_builder',
     branch="master",   # this can get changed by html.WebStatus.change_hook()
@@ -121,12 +130,22 @@ feed_cleanup_tmp = RemoveDirectory(
     alwaysRun=True
 )
 
-feed_trigger_image_generation = steps.Trigger(
+feed_trigger_image_generation_snapshot = steps.Trigger(
     name="trigger generation of new snapshot images",
     schedulerNames=["trigger_snapshots"],
     waitForFinish = False,
     alwaysUseLatest = True,
-    set_properties={"falterVersion" : Property("falterVersion")}
+    set_properties={"falterVersion" : Property("falterVersion")},
+    doStepIf=is_no_release
+)
+
+feed_trigger_image_generation_release = steps.Trigger(
+    name="trigger generation of release images",
+    schedulerNames=["trigger_release"],
+    waitForFinish = False,
+    alwaysUseLatest = True,
+    set_properties={"falterVersion" : Property("falterVersion")},
+    doStepIf=is_release
 )
 
 feed_factory = BuildFactory([
@@ -141,7 +160,8 @@ feed_factory = BuildFactory([
     feed_sign_packages,
     feed_cleanup,
     feed_cleanup_tmp,
-    feed_trigger_image_generation
+    feed_trigger_image_generation_snapshot,
+    feed_trigger_image_generation_release
     ])
 
 def create_feed_builder(builder_name):
