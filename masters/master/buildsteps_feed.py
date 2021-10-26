@@ -43,7 +43,7 @@ feed_create_tmpdir = ShellCommand(
 def feed_make_command(props):
     command = ['nice',
 	'./build_all_targets',
-    Interpolate('src-git falter https://github.com/Freifunk-Spalter/packages.git;%(prop:buildername)s'),
+    Interpolate('src-git falter https://github.com/Freifunk-Spalter/packages.git^%(prop:revision)s'),
     Interpolate('%(prop:builddir)s/tmp'),
     'build_parallel'
         ]
