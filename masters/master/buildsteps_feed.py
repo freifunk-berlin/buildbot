@@ -21,7 +21,7 @@ def is_no_release(step):
 
 
 feed_checkoutSource = Git(
-    repourl='git://github.com/Freifunk-Spalter/repo_builder',
+    repourl='git://github.com/freifunk-berlin/falter-repo_builder',
     branch="master",   # this can get changed by html.WebStatus.change_hook()
                        # by notification from GitHub of a commit
     workdir="build",
@@ -43,7 +43,7 @@ feed_create_tmpdir = ShellCommand(
 def feed_make_command(props):
     command = ['nice',
 	'./build_all_targets',
-    Interpolate('src-git falter https://github.com/Freifunk-Spalter/packages.git^%(prop:revision)s'),
+    Interpolate('src-git falter https://github.com/freifunk-berlin/falter-packages^%(prop:revision)s'),
     Interpolate('%(prop:builddir)s/tmp'),
     'build_parallel'
         ]
@@ -57,7 +57,7 @@ feed_make = ShellCommand(
 
 # fetch upload-dir from FREIFUNK_RELEASE variable in freifunk_release file.
 # this file shows the falter-version the feed is intended for
-freifunk_release_path = Interpolate("https://raw.githubusercontent.com/Freifunk-Spalter/packages/%(prop:revision)s/packages/falter-common/files-common/etc/freifunk_release")
+freifunk_release_path = Interpolate("https://raw.githubusercontent.com/freifunk-berlin/falter-packages/%(prop:revision)s/packages/falter-common/files-common/etc/freifunk_release")
 
 def extract_falter_dir(rc, stdout, stderr):
     try:

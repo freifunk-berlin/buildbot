@@ -24,7 +24,7 @@ def is_release_step(step):
 
 
 cmd_checkoutSource = Git(
-    repourl='git://github.com/Freifunk-Spalter/builter',
+    repourl='git://github.com/freifunk-berlin/falter-builter',
     branch="master",   # this can get changed by html.WebStatus.change_hook()
                        # by notification from GitHub of a commit
     workdir="build/falter-builter",
