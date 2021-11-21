@@ -133,13 +133,23 @@ cmd_create_release_dir = MasterShellCommand(
     doStepIf=is_release_step
     )
 
+cmd_mkdir_release_target_dir = MasterShellCommand(
+    name="create stable-release dir",
+    command=[
+        "mkdir",
+        "-p",
+        Interpolate("/usr/local/src/www/htdocs/buildbot/stable/%(prop:falterVersion)s/%(prop:buildername)s")
+        ],
+    doStepIf=is_release_step
+    )
+
 cmd_rsync_release = MasterShellCommand(
     name="sync stable-release",
     command=[
         "rsync",
         "-av",
         "--delete",
-        upload_directory,
+        upload_dir_target,
         Interpolate("/usr/local/src/www/htdocs/buildbot/stable/%(prop:falterVersion)s/%(prop:buildername)s")
         ],
     doStepIf=is_release_step
@@ -156,6 +166,7 @@ image_factory = BuildFactory([
     cmd_masterchmod,
     cmd_masterchown,
     cmd_create_release_dir,
+    cmd_mkdir_release_target_dir,
     cmd_rsync_release,
     cmd_cleanup
     ])
