@@ -1,5 +1,7 @@
 # Buildbot for Freifunk Firmware
 
+NOTE: The buildbot configuration is now handled in the ansible-repo exclusively. Please go there for issues and changes. This repository is archived.
+
 The [Freifunk Firmware (Berlin)](https://github.com/freifunk-berlin/firmware) is automatically built by the [buildbot](http://buildbot.berlin.freifunk.net).
 
 This repo contains the buildbot config for the master and slaves.
